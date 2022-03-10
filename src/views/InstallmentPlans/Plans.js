@@ -20,20 +20,16 @@ import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import api from "api";
 import {
-  Badge,
   Card,
   CardHeader,
   Button,
-  CardFooter,
   DropdownMenu,
   DropdownItem,
   UncontrolledDropdown,
   DropdownToggle,
-  Media,
   Table,
   Container,
   Row,
-  UncontrolledTooltip,
 } from "reactstrap";
 
 // core components
@@ -48,7 +44,6 @@ const Plans = ({ status }) => {
   const [plan, setPlan] = useState({});
   const [plans, Setplans] = useState([]);
   const history = useHistory();
-  const { pathname } = window.location;
 
   useEffect(async () => {
     getPlans();
@@ -72,7 +67,7 @@ const Plans = ({ status }) => {
     return openModal;
   };
 
-  const handleDelete = (id) => {
+  const handleDeleteModal = (id) => {
     api("delete", `/payments/${id}`).then(() => {
       toast.success("Plan deleted successfully");
       getPlans();
@@ -81,7 +76,6 @@ const Plans = ({ status }) => {
 
   return (
     <>
-      {console.log("PLans", plans)}
       <Header />
       {/* Page content */}
       <Container className="mt--7" fluid>
@@ -91,7 +85,7 @@ const Plans = ({ status }) => {
             <Card className="shadow">
               <CardHeader className="border-0">
                 <div className="d-flex justify-content-between ">
-                  <h3 className="mb-0">Installment Plan</h3>
+                  <h3 className="mb-0">Installment Plans</h3>
                   <Button
                     color="primary"
                     href="#pablo"
@@ -159,16 +153,16 @@ const Plans = ({ status }) => {
                                   View
                                 </DropdownItem>
                               )}
-                              {/* <DropdownItem
+                              <DropdownItem
                                 href="#pablo"
                                 onClick={() => handleEditModal(item)}
                               >
                                 Edit
-                              </DropdownItem> */}
+                              </DropdownItem>
                               <DropdownItem
                                 href="#pablo"
                                 className="text-danger"
-                                onClick={() => handleDelete(item._id)}
+                                onClick={() => handleDeleteModal(item._id)}
                               >
                                 Delete
                               </DropdownItem>
@@ -180,61 +174,6 @@ const Plans = ({ status }) => {
                   })}
                 </tbody>
               </Table>
-
-              {/* ///////////     Pagination Disabled Temp     ///////////// */}
-
-              {/* <CardFooter className="py-4">
-                <nav aria-label="...">
-                  <Pagination
-                    className="pagination justify-content-end mb-0"
-                    listClassName="justify-content-end mb-0"
-                  >
-                    <PaginationItem className="disabled">
-                      <PaginationLink
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                        tabIndex="-1"
-                      >
-                        <i className="fas fa-angle-left" />
-                        <span className="sr-only">Previous</span>
-                      </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem className="active">
-                      <PaginationLink
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        1
-                      </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        2 <span className="sr-only">(current)</span>
-                      </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        3
-                      </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        <i className="fas fa-angle-right" />
-                        <span className="sr-only">Next</span>
-                      </PaginationLink>
-                    </PaginationItem>
-                  </Pagination>
-                </nav>
-              </CardFooter> */}
             </Card>
           </div>
         </Row>

@@ -100,7 +100,7 @@ const Admin = (props) => {
           {getRoutes(routes)}
           <Route
             exact
-            path="/admin/candidates/:userId/:plan"
+            path="/admin/candidates/:userId"
             component={ViewCandidate}
           />
           <Redirect from="*" to="/admin/index" />

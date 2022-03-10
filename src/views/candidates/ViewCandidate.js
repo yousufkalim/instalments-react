@@ -8,67 +8,55 @@ import {
   Badge,
   Card,
   CardHeader,
-  Button,
-  CardFooter,
   DropdownMenu,
   DropdownItem,
   UncontrolledDropdown,
   DropdownToggle,
-  Media,
   Table,
   Container,
   ButtonDropdown,
   Row,
-  UncontrolledTooltip,
-  Alert,
 } from "reactstrap";
 
 // core components
-import AddCandidate from "./AddCandidate";
-import EditCandidate from "./EditCandidate";
 import Header from "components/Headers/Header.js";
 import { toast } from "react-toastify";
 import DatePicker from "react-date-picker";
 
 const ViewCandidate = () => {
-  // const isFirstTime = useRef(true);
 
-  const [openModal, setOpenModal] = useState(false);
-  const [editModal, setEditModal] = useState(false);
-  const [installment, setInstallment] = useState(null);
+  const [installments, setInstallments] = useState([]);
   const [user, setUser] = useState(null);
   const { userId } = useParams();
-  const { plan } = useParams();
   const [count, SetCount] = useState({});
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [planIndex, setPlanIndex] = useState(0);
-  const [InstallmentPlan, SetInstallmentPlan] = useState(plan);
-  const { candidates } = Store();
   const [value, onChange] = useState(new Date());
 
-  console.log(userId, plan, "Data from Params");
   useEffect(() => {
-    getInstallment();
-    getCount();
     getUser();
-  }, [JSON.stringify(InstallmentPlan)]);
+  }, []);
 
   const getUser = async () => {
     const user = await api("get", `/users/${userId}`);
     setUser(user);
+    if(user?.user?.payment_plan?.length > 0){
+      getInstallment(user.user.payment_plan[0]._id);
+      getCount(user.user.payment_plan[0]._id);
+    }
   };
 
-  const getInstallment = async () => {
+  const getInstallment = async (planID) => {
     const data = await api(
       "get",
-      `/installments/getbyUser/${userId}/${InstallmentPlan}`
+      `/installments/getbyUser/${userId}/${planID}`
     );
-    setInstallment(data);
+    setInstallments(data);
   };
-  const getCount = async () => {
+  const getCount = async (planID) => {
     await api(
       "post",
-      `/installments/getInstallmentstatus/${userId}/${InstallmentPlan}`
+      `/installments/getInstallmentstatus/${userId}/${planID}`
     )
       .then((res) => {
         SetCount(res);
@@ -79,14 +67,13 @@ const ViewCandidate = () => {
       });
   };
 
-  const PayInstallment = (id) => {
-    console.log("Installment Paid");
+  const payInstallment = (id) => {
     if (!value) {
       toast.error("Date is required");
       return;
     }
     if (value > new Date()) {
-      toast.error("You can't select future Date");
+      toast.error("You can't select a future Date");
       return;
     }
     const submission_date = {
@@ -94,8 +81,7 @@ const ViewCandidate = () => {
     };
     api("put", `/installments/${id}`, submission_date).then(() => {
       toast.success("Installment  Paid successfully");
-      getInstallment();
-      getCount();
+      getUser();
     });
   };
 
@@ -116,18 +102,19 @@ const ViewCandidate = () => {
                     toggle={(e) => setIsDropdownOpen(!isDropdownOpen)}
                   >
                     <DropdownToggle caret>
-                      {user?.user?.payment_plan[planIndex]?.plan ??
+                      {user?.user?.payment_plan[planIndex]?.product_title ??
                         " Select a Plan"}
                     </DropdownToggle>
                     <DropdownMenu>
-                      {user?.user?.payment_plan.map((plan, index) => (
+                      {user?.user?.payment_plan?.map((plan, index) => (
                         <DropdownItem
                           onClick={() => {
                             setPlanIndex(index);
-                            SetInstallmentPlan(plan._id);
+                            getInstallment(plan._id);
+                            getCount(plan._id);
                           }}
                         >
-                          {plan.plan}
+                          {plan.product_title}
                         </DropdownItem>
                       ))}
                     </DropdownMenu>
@@ -154,147 +141,93 @@ const ViewCandidate = () => {
                   <th>{count?.Paid}</th>
                 </tbody>
               </Table>
-              <Table className="align-items-center table-flush" responsive>
-                <thead className="thead-light">
-                  <tr>
-                    <th scope="col">Installment No.</th>
-                    <th scope="col">Installment Amount</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Due Date</th>
-                    <th scope="col">Submission Date</th>
-                    <th scope="col" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {installment?.installment?.map((tech) => {
-                    return (
-                      <tr key={tech.id}>
-                        <th>{tech?._id}</th>
-                        <td>{tech?.paid_amount}</td>
-                        <td>
-                          {tech?.status === "paid" ? (
-                            <Badge color="" className="badge-dot mr-4">
-                              <i className="bg-success" />
-                              {tech?.status}
-                            </Badge>
-                          ) : (
-                            <Badge color="" className="badge-dot mr-4">
-                              <i className="bg-warning" />
-                              {tech?.status}
-                            </Badge>
-                          )}
-                        </td>
-                        <td>{new Date(tech?.due_date).toDateString()}</td>
-                        <td>
-                          {tech?.submission_date
-                            ? new Date(tech?.submission_date).toDateString()
-                            : "_"}
-                        </td>
-                        <td className="text-right">
-                          <UncontrolledDropdown>
-                            <DropdownToggle
-                              className="btn-icon-only text-light"
-                              href="#pablo"
-                              role="button"
-                              size="sm"
-                              color=""
-                              onClick={(e) => e.preventDefault()}
-                            >
-                              <i className="fas fa-ellipsis-v" />
-                            </DropdownToggle>
-                            <DropdownMenu className="dropdown-menu-arrow" right>
-                              {tech.status === "pending" ? (
-                                <div>
-                                  <DatePicker
-                                    onChange={onChange}
-                                    value={value}
-                                  />
+              {
+                installments.length == 0 ?
+                <>
+                  <p style={{ alignSelf: "center" }}>
+                    No plans found.
+                  </p>
+                </> :
+                <Table className="align-items-center table-flush" responsive>
+                  <thead className="thead-light">
+                    <tr>
+                      <th scope="col">Installment No.</th>
+                      <th scope="col">Installment Amount</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Due Date</th>
+                      <th scope="col">Submission Date</th>
+                      <th scope="col" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {installments?.installment?.map((tech) => {
+                      return (
+                        <tr key={tech.id}>
+                          <th>{tech?._id}</th>
+                          <td>{tech?.paid_amount}</td>
+                          <td>
+                            {tech?.status === "paid" ? (
+                              <Badge color="" className="badge-dot mr-4">
+                                <i className="bg-success" />
+                                {tech?.status}
+                              </Badge>
+                            ) : (
+                              <Badge color="" className="badge-dot mr-4">
+                                <i className="bg-warning" />
+                                {tech?.status}
+                              </Badge>
+                            )}
+                          </td>
+                          <td>{new Date(tech?.due_date).toDateString()}</td>
+                          <td>
+                            {tech?.submission_date
+                              ? new Date(tech?.submission_date).toDateString()
+                              : "_"}
+                          </td>
+                          <td className="text-right">
+                            <UncontrolledDropdown>
+                              <DropdownToggle
+                                className="btn-icon-only text-light"
+                                href="#pablo"
+                                role="button"
+                                size="sm"
+                                color=""
+                                onClick={(e) => e.preventDefault()}
+                              >
+                                <i className="fas fa-ellipsis-v" />
+                              </DropdownToggle>
+                              <DropdownMenu className="dropdown-menu-arrow" right>
+                                {tech.status === "pending" ? (
+                                  <div>
+                                    <DatePicker
+                                      onChange={onChange}
+                                      value={value}
+                                    />
+                                    <DropdownItem
+                                      href="#pablo"
+                                      className="text-primary"
+                                      onClick={() => payInstallment(tech?._id)}
+                                    >
+                                      Mark As Paid
+                                    </DropdownItem>
+                                  </div>
+                                ) : (
                                   <DropdownItem
                                     href="#pablo"
-                                    className="text-primary"
-                                    onClick={() => PayInstallment(tech?._id)}
+                                    className="text-success"
                                   >
-                                    Mark As Paid
+                                    Already Paid
                                   </DropdownItem>
-                                </div>
-                              ) : (
-                                <DropdownItem
-                                  href="#pablo"
-                                  className="text-success"
-                                >
-                                  Already Paid
-                                </DropdownItem>
-                              )}
-                              {/* <DropdownItem
-                                href="#pablo"
-                                className="text-danger"
-                                // onClick={() => handleDelete(item._id)}
-                              >
-                                Delete
-                              </DropdownItem> */}
-                            </DropdownMenu>
-                          </UncontrolledDropdown>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </Table>
-
-              {/* ///////////     Pagination Disabled Temp     ///////////// */}
-
-              {/* <CardFooter className="py-4">
-                <nav aria-label="...">
-                  <Pagination
-                    className="pagination justify-content-end mb-0"
-                    listClassName="justify-content-end mb-0"
-                  >
-                    <PaginationItem className="disabled">
-                      <PaginationLink
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                        tabIndex="-1"
-                      >
-                        <i className="fas fa-angle-left" />
-                        <span className="sr-only">Previous</span>
-                      </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem className="active">
-                      <PaginationLink
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        1
-                      </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        2 <span className="sr-only">(current)</span>
-                      </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        3
-                      </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        <i className="fas fa-angle-right" />
-                        <span className="sr-only">Next</span>
-                      </PaginationLink>
-                    </PaginationItem>
-                  </Pagination>
-                </nav>
-              </CardFooter> */}
+                                )}
+                              </DropdownMenu>
+                            </UncontrolledDropdown>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </Table>
+              }
             </Card>
           </div>
         </Row>

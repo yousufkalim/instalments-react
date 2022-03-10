@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import api from "../../api";
-import { Select } from "antd";
 import {
   Modal,
   ModalBody,
@@ -13,39 +12,38 @@ import {
   Input,
   Row,
   Col,
-  Label,
 } from "reactstrap";
-// core components
-
-const { Option } = Select;
 
 const AddPlan = ({ openModal, handleModal, getCandidates }) => {
-  console.log("Handle Input");
 
   let [plan, setPlan] = useState({});
+
   const handleInput = (e) => {
-    console.log(e, "Handle Input");
     setPlan({ ...plan, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
-    console.log("SUBMIT Plan", plan);
     e.preventDefault();
 
-    if (!plan.plan || !plan.total_installments || !plan.deposit_payment) {
+    if (
+      !plan.product_title ||
+      !plan.product_description ||
+      !plan.plan ||
+      !plan.total_installments ||
+      !plan.deposit_payment
+    ) {
       toast.error("All fields are required");
     } else {
-      console.log(plan, "Plan");
       api("post", "/payments", plan)
-        .then((res) => {
-          toast.success("Plan added successfully");
-          getCandidates();
-          handleModal();
-        })
-        .catch((err) => {
-          console.log("SUBMIT err", err.response.data.message);
-          toast.error(err.response.data.message);
-        });
+      .then((res) => {
+        toast.success("Plan added successfully");
+        getCandidates();
+        handleModal();
+      })
+      .catch((err) => {
+        console.log("SUBMIT err", err.response.data.message);
+        toast.error(err.response.data.message);
+      });
     }
   };
 
@@ -60,6 +58,38 @@ const AddPlan = ({ openModal, handleModal, getCandidates }) => {
             <Col>
               <Form>
                 <div className="pl-lg-4">
+                  <Row>
+                    <Col lg="9" style={{ margin: "auto" }}>
+                      <FormGroup>
+                        <label className="form-control-label">Product Title</label>
+                        <Input
+                          className="form-control-alternative text-default"
+                          required={true}
+                          placeholder="Enter Product title here"
+                          type="text"
+                          value={plan.product_title}
+                          name="product_title"
+                          onChange={handleInput}
+                        />
+                      </FormGroup>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col lg="9" style={{ margin: "auto" }}>
+                      <FormGroup>
+                        <label className="form-control-label">Product Description</label>
+                        <Input
+                          className="form-control-alternative text-default"
+                          required={true}
+                          placeholder="Enter Product description here"
+                          type="text"
+                          value={plan.product_description}
+                          name="product_description"
+                          onChange={handleInput}
+                        />
+                      </FormGroup>
+                    </Col>
+                  </Row>
                   <Row>
                     <Col lg="9" style={{ margin: "auto" }}>
                       <FormGroup>
@@ -86,7 +116,7 @@ const AddPlan = ({ openModal, handleModal, getCandidates }) => {
                           className="form-control-alternative text-default"
                           required={true}
                           placeholder="Enter Total Installments"
-                          type="email"
+                          type="number"
                           value={plan?.total_installments}
                           name="total_installments"
                           onChange={handleInput}
@@ -104,7 +134,7 @@ const AddPlan = ({ openModal, handleModal, getCandidates }) => {
                           className="form-control-alternative text-default"
                           required={true}
                           placeholder="Enter Deposit Amount"
-                          type="text"
+                          type="number"
                           value={plan?.deposit_payment}
                           name="deposit_payment"
                           onChange={handleInput}
@@ -122,7 +152,7 @@ const AddPlan = ({ openModal, handleModal, getCandidates }) => {
                           className="form-control-alternative text-default"
                           required={true}
                           placeholder="Enter Total Amount"
-                          type="text"
+                          type="number"
                           value={plan?.total_payment}
                           name="total_payment"
                           onChange={handleInput}
@@ -140,7 +170,7 @@ const AddPlan = ({ openModal, handleModal, getCandidates }) => {
                           className="form-control-alternative text-default"
                           required={true}
                           placeholder="Enter Deposit Amount"
-                          type="text"
+                          type="number"
                           value={plan?.mark_up}
                           name="mark_up"
                           onChange={handleInput}
