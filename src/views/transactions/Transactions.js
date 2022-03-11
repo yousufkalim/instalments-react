@@ -38,6 +38,8 @@ import EditTransaction from "./EditTransaction";
 import Header from "components/Headers/Header.js";
 import { toast } from "react-toastify";
 
+import { exportXLSXTransactions } from "../../reports/genExcel";
+
 const Transactions = ({ status }) => {
   const [openModal, setOpenModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
@@ -109,6 +111,15 @@ const Transactions = ({ status }) => {
                       </p>
                     : <></>
                   }
+                  <Button
+                    color="secondary"
+                    href="#pablo"
+                    onClick={() => exportXLSXTransactions(transactions)}
+                    size="md"
+                  >
+                    <i className="ni ni-fat-add"></i>
+                    Generate Report
+                  </Button>
                   <Button
                     color="primary"
                     href="#pablo"
