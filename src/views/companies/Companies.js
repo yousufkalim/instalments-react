@@ -61,7 +61,7 @@ const Companies = ({ status }) => {
   };
 
   const navToTransactions = (item) => {
-    history.push(`/transactions/${item._id}`);
+    history.push(`/admin/transactions/${item._id}`);
   };
 
   const handleEditModal = (item) => {
