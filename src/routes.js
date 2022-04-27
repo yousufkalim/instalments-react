@@ -19,6 +19,7 @@ import Index from "views/Index.js";
 import Candidates from "views/candidates/Candidates";
 import ViewCandidate from "views/candidates/ViewCandidate";
 import Plans from "views/InstallmentPlans/Plans";
+import Companies from "views/companies/Companies";
 import Register from "views/Register.js";
 import Login from "views/Login.js";
 
@@ -44,13 +45,13 @@ var routes = [
     component: Plans,
     layout: "/admin",
   },
-  // {
-  //   path: "/pending-candidates",
-  //   name: "Pending Candidates",
-  //   icon: "ni ni-single-02 text-green",
-  //   component: Candidates,
-  //   layout: "/admin",
-  // },
+  {
+    path: "/companies",
+    name: "All Companies",
+    icon: "ni ni-single-02 text-red",
+    component: Companies,
+    layout: "/admin",
+  },
   {
     path: "/register",
     name: "Register",

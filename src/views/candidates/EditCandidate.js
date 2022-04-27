@@ -17,7 +17,6 @@ import {
 } from "reactstrap";
 // core components
 
-const { Option } = Select;
 const EditCandidate = ({
   openModal,
   handleModal,
@@ -137,7 +136,7 @@ const EditCandidate = ({
                           className="form-control-alternative text-default"
                           required={true}
                           placeholder="Enter user Phone Number here"
-                          type="text"
+                          type="number"
                           value={user.number}
                           name="number"
                           onChange={handleInput}
@@ -153,7 +152,6 @@ const EditCandidate = ({
                           className="form-control-alternative text-default"
                           required={true}
                           type="select"
-                          // value={user?.payment_plan?._id}
                           value={selectPlan}
                           name="payment_plan"
                           onChange={handleInput}

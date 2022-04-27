@@ -21,11 +21,9 @@ import { useHistory } from "react-router-dom";
 import api from "api";
 import { Store, UpdateStore } from "StoreContext";
 import {
-  Badge,
   Card,
   CardHeader,
   Button,
-  CardFooter,
   DropdownMenu,
   DropdownItem,
   UncontrolledDropdown,
@@ -34,7 +32,6 @@ import {
   Table,
   Container,
   Row,
-  UncontrolledTooltip,
 } from "reactstrap";
 
 // core components
@@ -82,12 +79,9 @@ const Candidates = ({ status }) => {
     return openModal;
   };
 
-  const handleDelete = (id) => {
-    api("delete", `/users/${id}`).then(() => {
-      toast.success("User deleted successfully");
-      getCandidates();
-    });
-  };
+  const navToViewCandidate = (id) => {
+    history.push(`/admin/candidates/${id}`);
+  }
 
   return (
     <>
@@ -117,7 +111,6 @@ const Candidates = ({ status }) => {
                   <tr>
                     <th scope="col">Name</th>
                     <th scope="col">Email</th>
-                    {/* <th scop="col"> Installment Plan</th> */}
                     <th scope="col">CNIC</th>
                     <th scope="col">Gender</th>
                     <th scope="col">Created At</th>
@@ -130,18 +123,11 @@ const Candidates = ({ status }) => {
                       <tr>
                         <th scope="row">
                           <Media className="align-items-center">
-                            <Media
-                              onClick={() => {
-                                console.log("On click Name Its Id", item._id);
-                                window.location = `/admin/candidates/${item._id}/${item.payment_plan[0]?._id}`;
-                              }}
-                            >
-                              <span className="mb-0 text-sm" title={item.name}>
-                                {item.name?.length > 30
-                                  ? item.name?.substring(0, 30) + "..."
-                                  : item.name}
-                              </span>
-                            </Media>
+                            <span className="mb-0 text-sm" title={item.name}>
+                              {item.name?.length > 30
+                                ? item.name?.substring(0, 30) + "..."
+                                : item.name}
+                            </span>
                           </Media>
                         </th>
                         <td title={item.email}>
@@ -149,12 +135,6 @@ const Candidates = ({ status }) => {
                             ? item.email?.substring(0, 30) + "..."
                             : item.email}
                         </td>
-                        {/* <td>
-                          <Badge color="" className="badge-dot mr-4">
-                            <i className="bg-success" />
-                            {item?.payment_plan?.plan}
-                          </Badge>
-                        </td> */}
                         <td>{item.cnic}</td>
                         <td>{item.gender}</td>
                         <td>{new Date(item.createdAt).toDateString()}</td>
@@ -184,16 +164,17 @@ const Candidates = ({ status }) => {
                               )}
                               <DropdownItem
                                 href="#pablo"
-                                onClick={() => handleEditModal(item)}
+                                className="text-primary"
+                                onClick={() => navToViewCandidate(item._id)}
                               >
-                                Edit
+                                Payment Plans
                               </DropdownItem>
                               <DropdownItem
                                 href="#pablo"
-                                className="text-danger"
-                                onClick={() => handleDelete(item._id)}
+                                className="text-success"
+                                onClick={() => handleEditModal(item)}
                               >
-                                Delete
+                                Edit
                               </DropdownItem>
                             </DropdownMenu>
                           </UncontrolledDropdown>
@@ -203,61 +184,6 @@ const Candidates = ({ status }) => {
                   })}
                 </tbody>
               </Table>
-
-              {/* ///////////     Pagination Disabled Temp     ///////////// */}
-
-              {/* <CardFooter className="py-4">
-                <nav aria-label="...">
-                  <Pagination
-                    className="pagination justify-content-end mb-0"
-                    listClassName="justify-content-end mb-0"
-                  >
-                    <PaginationItem className="disabled">
-                      <PaginationLink
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                        tabIndex="-1"
-                      >
-                        <i className="fas fa-angle-left" />
-                        <span className="sr-only">Previous</span>
-                      </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem className="active">
-                      <PaginationLink
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        1
-                      </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        2 <span className="sr-only">(current)</span>
-                      </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        3
-                      </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        <i className="fas fa-angle-right" />
-                        <span className="sr-only">Next</span>
-                      </PaginationLink>
-                    </PaginationItem>
-                  </Pagination>
-                </nav>
-              </CardFooter> */}
             </Card>
           </div>
         </Row>

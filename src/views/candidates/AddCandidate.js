@@ -38,18 +38,23 @@ const AddCandidate = ({ openModal, handleModal, getCandidates }) => {
     e.preventDefault();
 
     if (
-      (!user.name ||
+      (
+        !user.name ||
         !user.email ||
         !user.payment_plan ||
         !user.gender ||
         !user.number,
-      !user.cnic)
+        !user.cnic
+      )
     ) {
       toast.error("All fields are required");
     } else {
+
+      // console.log(user);
+
+      // return;
+
       api("post", "/users", user).then((res) => {
-        console.log(user, "User submit Post data");
-        console.log(res, "User Post Response");
         toast.success("Candidate added successfully");
         getCandidates();
         handleModal();
@@ -126,7 +131,7 @@ const AddCandidate = ({ openModal, handleModal, getCandidates }) => {
                           className="form-control-alternative text-default"
                           required={true}
                           placeholder="Enter user Phone Number here"
-                          type="text"
+                          type="number"
                           value={user.number}
                           name="number"
                           onChange={handleInput}
